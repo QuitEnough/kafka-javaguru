@@ -1,18 +1,13 @@
 package com.yana.kafkajavaguru.rest;
 
 import com.yana.kafkajavaguru.dto.CreateProductDto;
-import com.yana.kafkajavaguru.dto.ErrorMessage;
 import com.yana.kafkajavaguru.service.ProductService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Date;
-import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/product")
@@ -25,19 +20,8 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createProduct(@RequestBody CreateProductDto createProductDto) {
-        String productId = null;
-        try {
-            productId = productService.createProduct(createProductDto);
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorMessage(
-                            new Date(),
-                            e.getMessage()
-                    ));
-        }
-
+    public ResponseEntity<String> createProduct(@RequestBody CreateProductDto createProductDto) {
+        var productId = productService.createProduct(createProductDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(productId);
     }
 

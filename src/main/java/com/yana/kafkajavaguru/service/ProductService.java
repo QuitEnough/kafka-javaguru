@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class ProductService {
@@ -22,7 +21,7 @@ public class ProductService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public String createProduct(CreateProductDto createProductDto) throws ExecutionException, InterruptedException {
+    public String createProduct(CreateProductDto createProductDto) {
         var productId = UUID.randomUUID().toString();
         var productCreatedEvent = new ProductCreatedEvent(
                 productId,
@@ -30,16 +29,20 @@ public class ProductService {
                 createProductDto.price(),
                 createProductDto.quantity());
 
-        SendResult<String, ProductCreatedEvent> result = kafkaTemplate
+        CompletableFuture<SendResult<String, ProductCreatedEvent>> future = kafkaTemplate
                 .send(
                         "product-created-events-topic",
                         productId,
                         productCreatedEvent
-                ).get();
+                );
 
-        LOGGER.info("Topic: {}", result.getRecordMetadata().topic());
-        LOGGER.info("Partition: {}", result.getRecordMetadata().partition());
-        LOGGER.info("Offset: {}", result.getRecordMetadata().offset());
+        future.whenComplete((result, exception) -> {
+           if (exception != null) {
+               LOGGER.error("Failed to send message: {}", exception.getMessage());
+           } else {
+               LOGGER.info("Message sent successfully: {}", result.getRecordMetadata());
+           }
+        });
 
 
         LOGGER.info("Return: {}", productId);
