@@ -22,6 +22,7 @@
         <module>product-microservice</module>
         <module>email-notification-microservice</module>
         <module>core</module>
+        <module>mockservice</module>
     </modules>
 
     <properties>
