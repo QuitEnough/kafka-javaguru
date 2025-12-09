@@ -2,6 +2,7 @@ package com.yana.productmicroservice.service;
 
 import com.yana.productmicroservice.dto.CreateProductDto;
 import com.yana.core.ProductCreatedEvent;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class ProductService {
@@ -21,7 +23,7 @@ public class ProductService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public String createProduct(CreateProductDto createProductDto) {
+    public String createProduct(CreateProductDto createProductDto) throws ExecutionException, InterruptedException {
         var productId = UUID.randomUUID().toString();
         var productCreatedEvent = new ProductCreatedEvent(
                 productId,
@@ -29,21 +31,20 @@ public class ProductService {
                 createProductDto.price(),
                 createProductDto.quantity());
 
-        CompletableFuture<SendResult<String, ProductCreatedEvent>> future = kafkaTemplate
-                .send(
-                        "product-created-events-topic",
-                        productId,
-                        productCreatedEvent
-                );
+        ProducerRecord<String, ProductCreatedEvent> record = new ProducerRecord<>(
+                "product-created-events-topic",
+                productId,
+                productCreatedEvent
+        );
 
-        future.whenComplete((result, exception) -> {
-            if (exception != null) {
-                LOGGER.error("Failed to send message: {}", exception.getMessage());
-            } else {
-                LOGGER.info("Message sent successfully: {}", result.getRecordMetadata());
-            }
-        });
+        record.headers().add("messageId", UUID.randomUUID().toString().getBytes());
 
+        SendResult<String, ProductCreatedEvent> result = kafkaTemplate
+                .send(record).get();
+
+        LOGGER.info("Topic: {}", result.getRecordMetadata().topic());
+        LOGGER.info("Partition: {}", result.getRecordMetadata().partition());
+        LOGGER.info("Offset: {}", result.getRecordMetadata().offset());
 
         LOGGER.info("Return: {}", productId);
 
