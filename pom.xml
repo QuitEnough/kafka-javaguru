@@ -21,6 +21,7 @@
     <modules>
         <module>product-microservice</module>
         <module>email-notification-microservice</module>
+        <module>core</module>
     </modules>
 
     <properties>

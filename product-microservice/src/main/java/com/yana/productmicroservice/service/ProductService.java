@@ -1,7 +1,7 @@
 package com.yana.productmicroservice.service;
 
 import com.yana.productmicroservice.dto.CreateProductDto;
-import com.yana.productmicroservice.event.ProductCreatedEvent;
+import com.yana.core.ProductCreatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;

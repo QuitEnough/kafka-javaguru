@@ -1,4 +1,4 @@
-package com.yana.productmicroservice.event;
+package com.yana.core;
 
 import java.math.BigDecimal;
 
