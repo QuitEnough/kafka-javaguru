@@ -10,12 +10,12 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Component
-@KafkaListener(topics = "withdrawal-money-topic", containerFactory = "kafkaListenerContainerFactory")
+@KafkaListener(topics = "withdraw-money-topic", containerFactory = "kafkaListenerContainerFactory")
 public class WithdrawalRequestedEventHandler {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @KafkaHandler
     public void handle(@Payload WithdrawalRequestedEvent withdrawalRequestedEvent) {
-        LOGGER.info("Received a new deposit event: {}", withdrawalRequestedEvent.amount());
+        LOGGER.info("Received a new withdrawal event: {}", withdrawalRequestedEvent.amount());
     }
 }

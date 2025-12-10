@@ -55,6 +55,7 @@ public class TransferService {
             kafkaTemplate.send(environment
                     .getProperty("deposit-money-topic", "deposit-money-topic"),
                     depositEvent);
+            LOGGER.info("Sent event to deposit topic.");
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new TransferServiceException(e);
