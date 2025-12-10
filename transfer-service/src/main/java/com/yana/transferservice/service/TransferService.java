@@ -4,8 +4,12 @@ import com.yana.core.events.DepositRequestedEvent;
 import com.yana.core.events.WithdrawalRequestedEvent;
 import com.yana.transferservice.dto.TransferRestModel;
 import com.yana.transferservice.exception.TransferServiceException;
+import com.yana.transferservice.persistence.TransferEntity;
+import com.yana.transferservice.persistence.TransferRepository;
+import org.apache.kafka.common.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -23,15 +27,21 @@ public class TransferService {
     private KafkaTemplate<String, Object> kafkaTemplate;
     private Environment environment;
     private RestTemplate restTemplate;
+    private TransferRepository transferRepository;
 
-    public TransferService(KafkaTemplate<String, Object> kafkaTemplate, Environment environment, RestTemplate restTemplate) {
+    public TransferService(KafkaTemplate<String, Object> kafkaTemplate,
+                           Environment environment,
+                           RestTemplate restTemplate,
+                           TransferRepository transferRepository) {
+
         this.kafkaTemplate = kafkaTemplate;
         this.environment = environment;
         this.restTemplate = restTemplate;
+        this.transferRepository = transferRepository;
     }
 
     // вариант 1 - предпочтительнее, т.к. унверсальный
-    @Transactional
+    @Transactional("transactionManager")
     public boolean transfer(TransferRestModel transferRestModel) {
         WithdrawalRequestedEvent withdrawalEvent = new WithdrawalRequestedEvent(
                 transferRestModel.senderId(),
@@ -45,6 +55,11 @@ public class TransferService {
         );
 
         try {
+            TransferEntity transferEntity = new TransferEntity();
+            BeanUtils.copyProperties(transferRestModel, transferEntity);
+            transferEntity.setTransferId(Uuid.randomUuid().toString());
+            transferRepository.save(transferEntity);
+
             kafkaTemplate.send(environment
                     .getProperty("withdraw-money-topic", "withdraw-money-topic"),
                     withdrawalEvent);
