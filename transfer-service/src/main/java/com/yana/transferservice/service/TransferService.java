@@ -30,6 +30,7 @@ public class TransferService {
         this.restTemplate = restTemplate;
     }
 
+    // вариант 1 - предпочтительнее, т.к. унверсальный
     @Transactional
     public boolean transfer(TransferRestModel transferRestModel) {
         WithdrawalRequestedEvent withdrawalEvent = new WithdrawalRequestedEvent(
@@ -63,6 +64,43 @@ public class TransferService {
 
         return true;
     }
+
+    // вариант 2 - обработки транзакции. подходит только для работы с кафкой
+//    @Transactional
+//    public boolean transfer(TransferRestModel transferRestModel) {
+//        WithdrawalRequestedEvent withdrawalEvent = new WithdrawalRequestedEvent(
+//                transferRestModel.senderId(),
+//                transferRestModel.recepientId(),
+//                transferRestModel.amount()
+//        );
+//        DepositRequestedEvent depositEvent = new DepositRequestedEvent(
+//                transferRestModel.senderId(),
+//                transferRestModel.recepientId(),
+//                transferRestModel.amount()
+//        );
+//
+//        try {
+//            boolean result = kafkaTemplate.executeInTransaction(t -> {
+//                t.send(environment.getProperty("withdraw-money-topic", "withdraw-money-topic"),
+//                        withdrawalEvent);
+//                LOGGER.info("Sent event to withdrawal topic.");
+//
+//                t.send(environment.getProperty("deposit-money-topic", "deposit-money-topic"),
+//                        depositEvent);
+//                LOGGER.info("Sent event to deposit topic.");
+//
+//                return true;
+//            });
+//
+//            callRemoteService();
+//
+//        } catch (Exception e) {
+//            LOGGER.error(e.getMessage(), e);
+//            throw new TransferServiceException(e);
+//        }
+//
+//        return true;
+//    }
 
     private ResponseEntity<String> callRemoteService() throws Exception {
         var requestUrl = "http://localhost:50513/response/200";
