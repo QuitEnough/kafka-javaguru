@@ -23,12 +23,37 @@
         <module>email-notification-microservice</module>
         <module>core</module>
         <module>mockservice</module>
+        <module>transfer-service</module>
     </modules>
 
     <properties>
         <java.version>17</java.version>
         <h2.version>2.1.214</h2.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.yana</groupId>
+            <artifactId>core</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>

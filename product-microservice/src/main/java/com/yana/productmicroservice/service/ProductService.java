@@ -1,7 +1,7 @@
 package com.yana.productmicroservice.service;
 
-import com.yana.productmicroservice.dto.CreateProductDto;
 import com.yana.core.ProductCreatedEvent;
+import com.yana.productmicroservice.dto.CreateProductDto;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,6 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Service
